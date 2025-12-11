@@ -1,0 +1,6 @@
+@RestCountries.WebApi_HostAddress = http://localhost:5250
+
+GET {{RestCountries.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
