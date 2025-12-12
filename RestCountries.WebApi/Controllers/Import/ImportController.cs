@@ -21,6 +21,8 @@ public class ImportController : ControllerBase
         var httpClient = httpClientFactory.CreateClient("RestCountriesHttpClient");
         using var response = await httpClient.GetAsync("/v3.1/independent?status=true");
 
+        var countries = await response.Content.ReadFromJsonAsync<List<CountryDto>>();
+
         response.EnsureSuccessStatusCode();
     }
 
