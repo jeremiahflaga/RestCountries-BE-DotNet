@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestCountries.Core;
+using RestCountries.Data;
 using System;
 using static System.Net.WebRequestMethods;
 
@@ -25,19 +26,36 @@ public class ImportController : ControllerBase
         using var response = await httpClient.GetAsync("/v3.1/independent?status=true");
 
         var countriesDto = await response.Content.ReadFromJsonAsync<List<CountryDto>>();
-        var countries = countriesDto.Select(countryDto => new Country(countryDto.cca2)
+
+        //var languages = countriesDto?.SelectMany(c => c.languages ?? new Dictionary<string, string>())
+        //    .DistinctBy(l => l.Key)
+        //    .Select(l => new Language(l.Key, l.Value))
+        //    .ToList();
+        //await importCountriesRepository.BulkUpsertAsync(languages);
+
+        var countries = new List<Country>();
+        foreach (var countryDto in countriesDto)
         {
-            OfficialName = countryDto.name?.official,
-            CommonName = countryDto.name?.common,
-            Region = countryDto.region,
-            Subregion = countryDto.subregion,
-            Capital = countryDto.capital != null && countryDto.capital.Count > 0 ? countryDto.capital[0] : null,
-            Population = countryDto.population,
-            Area = countryDto.area,
-            Languages = countryDto.languages?.Select(l => new Language(l.Key, l.Value)).ToList(),
-            Flag = !string.IsNullOrEmpty(countryDto.flags?.png) ? countryDto.flags.png : countryDto.flags?.svg
-        });
+            var country = new Country(countryDto.cca2)
+            {
+                OfficialName = countryDto.name?.official,
+                CommonName = countryDto.name?.common,
+                Region = countryDto.region,
+                Subregion = countryDto.subregion,
+                Capital = countryDto.capital != null && countryDto.capital.Count > 0 ? countryDto.capital[0] : null,
+                Population = countryDto.population,
+                Area = countryDto.area,
+                Languages = countryDto.languages.Select(x => new Language { Code = x.Key, Name = x.Value }).ToList(),
+                Flag = !string.IsNullOrEmpty(countryDto.flags?.png) ? countryDto.flags.png : countryDto.flags?.svg
+            };
+
+            countries.Add(country);
+        }
+        //var countries = countriesDto.Select(countryDto => );
         await importCountriesRepository.BulkUpsertAsync(countries);
+
+
+
         //foreach (var countryDto in countries)
         //{
         //    await importCountriesRepository.UpsertAsync();
