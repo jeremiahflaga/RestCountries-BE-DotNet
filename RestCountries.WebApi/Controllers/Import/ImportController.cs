@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestCountries.Core;
-using RestCountries.Data;
-using System;
-using static System.Net.WebRequestMethods;
 
 namespace RestCountries.WebApi.Controllers.Import;
 
@@ -27,12 +24,6 @@ public class ImportController : ControllerBase
 
         var countriesDto = await response.Content.ReadFromJsonAsync<List<CountryDto>>();
 
-        //var languages = countriesDto?.SelectMany(c => c.languages ?? new Dictionary<string, string>())
-        //    .DistinctBy(l => l.Key)
-        //    .Select(l => new Language(l.Key, l.Value))
-        //    .ToList();
-        //await importCountriesRepository.BulkUpsertAsync(languages);
-
         var countries = new List<Country>();
         foreach (var countryDto in countriesDto)
         {
@@ -51,48 +42,8 @@ public class ImportController : ControllerBase
 
             countries.Add(country);
         }
-        //var countries = countriesDto.Select(countryDto => );
         await importCountriesRepository.BulkUpsertAsync(countries);
-
-
-
-        //foreach (var countryDto in countries)
-        //{
-        //    await importCountriesRepository.UpsertAsync();
-        //}
 
         response.EnsureSuccessStatusCode();
     }
-
-    //// GET: api/<CountriesController>
-    //[HttpGet]
-    //public IEnumerable<string> Get()
-    //{
-    //    return new string[] { "value1", "value2" };
-    //}
-
-    //// GET api/<CountriesController>/5
-    //[HttpGet("{id}")]
-    //public string Get(int id)
-    //{
-    //    return "value";
-    //}
-
-    //// POST api/<CountriesController>
-    //[HttpPost]
-    //public void Post([FromBody] string value)
-    //{
-    //}
-
-    //// PUT api/<CountriesController>/5
-    //[HttpPut("{id}")]
-    //public void Put(int id, [FromBody] string value)
-    //{
-    //}
-
-    //// DELETE api/<CountriesController>/5
-    //[HttpDelete("{id}")]
-    //public void Delete(int id)
-    //{
-    //}
 }

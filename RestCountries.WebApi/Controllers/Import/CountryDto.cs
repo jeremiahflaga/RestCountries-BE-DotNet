@@ -19,11 +19,6 @@ public class Flags
     public string svg { get; set; }
 }
 
-//public class Languages
-//{
-//    public string eng { get; set; }
-//}
-
 public class Name
 {
     public string common { get; set; }

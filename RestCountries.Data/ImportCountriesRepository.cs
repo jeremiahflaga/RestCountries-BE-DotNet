@@ -26,13 +26,6 @@ public class ImportCountriesRepository : IImportCountriesRepository
         UpdateByProperties = new List<string> { "CCA2" } // default is PK
     };
 
-    //private static BulkConfig bulkConfigForLanguages = new BulkConfig
-    //{
-    //    SetOutputIdentity = true,      // get generated IDs for inserts
-    //    PreserveInsertOrder = true,    // keep list order if needed
-    //    UpdateByProperties = new List<string> { "Code" }
-    //};
-
     public async Task BulkUpsertAsync(IEnumerable<Country> countries)
     {
         await dbContext.BulkInsertOrUpdateAsync(countries, bulkConfigForCountries);
