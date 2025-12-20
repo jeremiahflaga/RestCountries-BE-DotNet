@@ -18,6 +18,7 @@ public class Country
     public string? Capital { get; set; }
     public int? Population { get; set; }
     public double? Area { get; set; }
-    public List<Language> Languages { get; set; }
     public string? Flag { get; set; }
+
+    public ICollection<CountryLanguage>? CountryLanguages { get; set; }
 }
