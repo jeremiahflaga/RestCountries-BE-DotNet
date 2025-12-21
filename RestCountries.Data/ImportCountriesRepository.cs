@@ -1,13 +1,7 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Index.HPRtree;
 using RestCountries.Core;
 using RestCountries.WebApi.Controllers.Import;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RestCountries.Data;
 
@@ -24,29 +18,39 @@ public class ImportCountriesRepository : IImportCountriesRepository
     {
         //SetOutputIdentity = true,      // get generated IDs for inserts
         //PreserveInsertOrder = true,    // keep list order if needed
-        UpdateByProperties = new List<string> { "CCA2" } // default is PK
+        UpdateByProperties = new List<string> { "CCA2" }, // default is PK
+        CalculateStats = true,
     };
 
     private static BulkConfig bulkConfigForLanguages = new BulkConfig
     {
         //SetOutputIdentity = true,      // get generated IDs for inserts
         //PreserveInsertOrder = true,    // keep list order if needed
-        UpdateByProperties = new List<string> { "Code" }
+        UpdateByProperties = new List<string> { "Code" },
+        CalculateStats = true,
     };
 
-    public async Task BulkUpsertAsync(IEnumerable<Country> countries)
+    private static BulkConfig bulkConfigForCountryLanguages = new BulkConfig
+    {
+        CalculateStats = true,
+    };
+
+    public async Task<BulkUpsertStatsInfo> BulkUpsertAsync(IEnumerable<Country> countries)
     {
         await dbContext.BulkInsertOrUpdateAsync(countries, bulkConfigForCountries);
+        return GetBulkUpsertStatsInfo(bulkConfigForCountryLanguages.StatsInfo);
     }
 
-    public async Task BulkUpsertAsync(IEnumerable<Language> languages)
+    public async Task<BulkUpsertStatsInfo> BulkUpsertAsync(IEnumerable<Language> languages)
     {
         await dbContext.BulkInsertOrUpdateAsync(languages, bulkConfigForLanguages);
+        return GetBulkUpsertStatsInfo(bulkConfigForCountryLanguages.StatsInfo);
     }
 
-    public async Task BulkUpsertAsync(IEnumerable<CountryLanguage> countryLanguages)
+    public async Task<BulkUpsertStatsInfo> BulkUpsertAsync(IEnumerable<CountryLanguage> countryLanguages)
     {
-        await dbContext.BulkInsertOrUpdateAsync(countryLanguages);
+        await dbContext.BulkInsertOrUpdateAsync(countryLanguages, bulkConfigForCountryLanguages);
+        return GetBulkUpsertStatsInfo(bulkConfigForCountryLanguages.StatsInfo);
     }
 
     public async Task<IEnumerable<Language>> GetAllLanguagesAsync()
@@ -57,5 +61,14 @@ public class ImportCountriesRepository : IImportCountriesRepository
     public async Task<IEnumerable<Country>> GetAllCountriesAsync()
     {
         return await dbContext.Countries.ToListAsync();
+    }
+
+    private BulkUpsertStatsInfo GetBulkUpsertStatsInfo(StatsInfo statsInfo)
+    {
+        return new BulkUpsertStatsInfo
+        {
+            InsertedCount = statsInfo.StatsNumberInserted,
+            UpdatedCount = statsInfo.StatsNumberUpdated
+        };
     }
 }

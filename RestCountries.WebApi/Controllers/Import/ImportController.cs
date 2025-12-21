@@ -22,16 +22,15 @@ public class ImportController : ControllerBase
     {
         try
         {
+            var httpClient = httpClientFactory.CreateClient("RestCountriesHttpClient");
+            using var response = await httpClient.GetAsync("/v3.1/independent?status=true");
 
-        var httpClient = httpClientFactory.CreateClient("RestCountriesHttpClient");
-        using var response = await httpClient.GetAsync("/v3.1/independent?status=true");
+            var countriesDto = await response.Content.ReadFromJsonAsync<List<CountryDto>>();
+            await BulkImportLanguages(countriesDto);
+            await BulkImportCountries(countriesDto);
+            await BulkImportCountryLanguages(countriesDto);
 
-        var countriesDto = await response.Content.ReadFromJsonAsync<List<CountryDto>>();
-        await BulkImportLanguages(countriesDto);
-        await BulkImportCountries(countriesDto);
-        await BulkImportCountryLanguages(countriesDto);
-
-        response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
         }
         catch (Exception ex)
         {
