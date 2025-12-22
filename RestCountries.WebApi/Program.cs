@@ -16,10 +16,12 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddHttpClient("RestCountriesHttpClient", c =>
-{
-    c.BaseAddress = new Uri("https://restcountries.com");
-});
+builder.Services
+    .AddHttpClient("RestCountriesHttpClient", c =>
+    {
+        c.BaseAddress = new Uri("https://restcountries.com");
+    })
+    .AddStandardResilienceHandler();
 
 var app = builder.Build();
 
