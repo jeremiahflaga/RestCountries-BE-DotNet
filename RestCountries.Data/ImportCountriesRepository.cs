@@ -1,7 +1,6 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using RestCountries.Core;
-using RestCountries.WebApi.Controllers.Import;
 
 namespace RestCountries.Data;
 

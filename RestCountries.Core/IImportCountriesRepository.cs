@@ -1,6 +1,4 @@
-﻿using RestCountries.Core;
-
-namespace RestCountries.WebApi.Controllers.Import;
+﻿namespace RestCountries.Core;
 
 public interface IImportCountriesRepository
 {
