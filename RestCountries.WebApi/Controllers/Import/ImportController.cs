@@ -31,6 +31,13 @@ public class ImportController : ControllerBase
         {
             var httpClient = httpClientFactory.CreateClient("RestCountriesHttpClient");
             using var response = await httpClient.GetAsync("/v3.1/independent?status=true");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.LogError($"Failed to fetch countries data. Status code: {response.StatusCode}");
+                return;
+            }
+
             var countriesDto = await response.Content.ReadFromJsonAsync<List<ImportCountryDto>>();
 
             var importLanguagesStats = await BulkImportLanguages(countriesDto);
