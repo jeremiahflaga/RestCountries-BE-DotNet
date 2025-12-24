@@ -1,5 +1,6 @@
 ﻿namespace RestCountries.Core.Entities;
 
+// TODO: move to Data module, change visibility to internal
 public class CountryLanguage
 {
     public int CountryId { get; set; }

@@ -14,5 +14,7 @@ public class Language
     public string Code { get; set; }
     public string Name { get; set; }
 
+    // TODO: create db entity for Language in Data module,
+    // TODO: delete this property
     public ICollection<CountryLanguage>? CountryLanguages { get; protected set; }
 }
