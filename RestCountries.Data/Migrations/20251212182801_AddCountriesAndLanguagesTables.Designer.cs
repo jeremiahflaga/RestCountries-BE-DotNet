@@ -23,7 +23,7 @@ namespace RestCountries.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("RestCountries.Core.Country", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.CountryDbModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,7 +65,7 @@ namespace RestCountries.Data.Migrations
                     b.ToTable("Countries");
                 });
 
-            modelBuilder.Entity("RestCountries.Core.Language", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.LanguageDbModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -92,14 +92,14 @@ namespace RestCountries.Data.Migrations
                     b.ToTable("Languages");
                 });
 
-            modelBuilder.Entity("RestCountries.Core.Language", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.LanguageDbModel", b =>
                 {
-                    b.HasOne("RestCountries.Core.Country", null)
+                    b.HasOne("RestCountries.Data.DbModel.CountryDbModel", null)
                         .WithMany("Languages")
                         .HasForeignKey("CountryId");
                 });
 
-            modelBuilder.Entity("RestCountries.Core.Country", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.CountryDbModel", b =>
                 {
                     b.Navigation("Languages");
                 });

@@ -38,7 +38,7 @@ public class CountriesRepository : ICountriesRepository
             .Skip((q.Page - 1) * q.PageSize)
             .Take(q.PageSize);
 
-        return results.ToList();
+        return results.Select(x => x.ToCountryEntity());
     }
 
 }

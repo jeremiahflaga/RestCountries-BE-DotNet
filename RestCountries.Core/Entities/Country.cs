@@ -20,7 +20,5 @@ public class Country
     public double? Area { get; set; }
     public string? Flag { get; set; }
 
-    // TODO: create db entity for Country in Data module,
-    // TODO: replace this property with list of languages
-    public ICollection<CountryLanguage>? CountryLanguages { get; set; }
+    public IEnumerable<Language>? Languages { get; set; }
 }

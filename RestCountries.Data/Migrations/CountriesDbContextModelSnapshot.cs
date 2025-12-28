@@ -21,7 +21,7 @@ namespace RestCountries.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("RestCountries.Core.Country", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.CountryDbModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,10 +60,10 @@ namespace RestCountries.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
                 });
 
-            modelBuilder.Entity("RestCountries.Core.CountryLanguage", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.CountryLanguageDbModel", b =>
                 {
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
@@ -78,7 +78,7 @@ namespace RestCountries.Data.Migrations
                     b.ToTable("CountryLanguages", (string)null);
                 });
 
-            modelBuilder.Entity("RestCountries.Core.Language", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.LanguageDbModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -97,18 +97,18 @@ namespace RestCountries.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Languages");
+                    b.ToTable("Languages", (string)null);
                 });
 
-            modelBuilder.Entity("RestCountries.Core.CountryLanguage", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.CountryLanguageDbModel", b =>
                 {
-                    b.HasOne("RestCountries.Core.Country", "Country")
+                    b.HasOne("RestCountries.Data.DbModel.CountryDbModel", "Country")
                         .WithMany("CountryLanguages")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RestCountries.Core.Language", "Language")
+                    b.HasOne("RestCountries.Data.DbModel.LanguageDbModel", "Language")
                         .WithMany("CountryLanguages")
                         .HasForeignKey("LanguageId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -119,12 +119,12 @@ namespace RestCountries.Data.Migrations
                     b.Navigation("Language");
                 });
 
-            modelBuilder.Entity("RestCountries.Core.Country", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.CountryDbModel", b =>
                 {
                     b.Navigation("CountryLanguages");
                 });
 
-            modelBuilder.Entity("RestCountries.Core.Language", b =>
+            modelBuilder.Entity("RestCountries.Data.DbModel.LanguageDbModel", b =>
                 {
                     b.Navigation("CountryLanguages");
                 });

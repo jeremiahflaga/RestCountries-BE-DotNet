@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RestCountries.Core.Entities;
 using RestCountries.Core.Services;
+using RestCountries.Data.DbModel;
 
 namespace RestCountries.Data.Repositories;
 
@@ -17,46 +18,99 @@ public class ImportCountriesRepository : IImportCountriesRepository
     private static BulkConfig bulkConfigForCountries = new BulkConfig
     {
         UpdateByProperties = new List<string> { "CCA2" }, // default is PK
+        //PropertiesToExcludeOnUpdate = new List<string> { "CountryLanguages" },
         CalculateStats = true,
     };
 
     private static BulkConfig bulkConfigForLanguages = new BulkConfig
     {
         UpdateByProperties = new List<string> { "Code" },
+        //PropertiesToExcludeOnUpdate = new List<string> { "CountryLanguages" },
         CalculateStats = true,
     };
 
     private static BulkConfig bulkConfigForCountryLanguages = new BulkConfig
     {
+        UpdateByProperties = new List<string> { "CountryId", "LanguageId" },
         CalculateStats = true,
     };
 
     public async Task<BulkUpsertStatsInfo> BulkUpsertAsync(IEnumerable<Country> countries)
     {
-        await dbContext.BulkInsertOrUpdateAsync(countries, bulkConfigForCountries);
+        await BulkImportLanguages(countries);
+        await BulkImportCountries(countries);
+        await BulkImportCountryLanguages(countries);
+
+        //await dbContext.BulkInsertOrUpdateAsync(countries, bulkConfigForCountries);
         return GetBulkUpsertStatsInfo(bulkConfigForCountries.StatsInfo);
     }
 
-    public async Task<BulkUpsertStatsInfo> BulkUpsertAsync(IEnumerable<Language> languages)
+    private async Task<BulkUpsertStatsInfo> BulkImportLanguages(IEnumerable<Country>? countries)
     {
-        await dbContext.BulkInsertOrUpdateAsync(languages, bulkConfigForLanguages);
+        var languagesDbModel = countries?.SelectMany(c => c.Languages)
+            .DistinctBy(l => l.Code)
+            .Select(l => LanguageDbModel.FromLanguageEntity(l))
+            .ToList();
+        await dbContext.BulkInsertOrUpdateAsync(languagesDbModel, bulkConfigForLanguages);
         return GetBulkUpsertStatsInfo(bulkConfigForLanguages.StatsInfo);
     }
 
-    public async Task<BulkUpsertStatsInfo> BulkUpsertAsync(IEnumerable<CountryLanguage> countryLanguages)
+    private async Task<BulkUpsertStatsInfo> BulkImportCountries(IEnumerable<Country>? countries)
     {
-        await dbContext.BulkInsertOrUpdateAsync(countryLanguages, bulkConfigForCountryLanguages);
-        return GetBulkUpsertStatsInfo(bulkConfigForCountryLanguages.StatsInfo);
+        var countriesDbModel = new List<CountryDbModel>();
+        foreach (var countryDto in countries)
+        {
+            var country = new CountryDbModel
+            {
+                Id = countryDto.Id,
+                CCA2 = countryDto.CCA2,
+                OfficialName = countryDto.OfficialName,
+                Name = countryDto.Name,
+                Region = countryDto.Region,
+                Subregion = countryDto.Subregion,
+                Capital = countryDto.Capital,
+                Population = countryDto.Population,
+                Area = countryDto.Area,
+                Flag = countryDto.Flag,
+            };
+
+            countriesDbModel.Add(country);
+        }
+        await dbContext.BulkInsertOrUpdateAsync(countriesDbModel, bulkConfigForCountries);
+        return GetBulkUpsertStatsInfo(bulkConfigForCountries.StatsInfo);
     }
 
-    public async Task<IEnumerable<Language>> GetAllLanguagesAsync()
+    private async Task<BulkUpsertStatsInfo> BulkImportCountryLanguages(IEnumerable<Country>? countries)
     {
-        return await dbContext.Languages.ToListAsync();
-    }
+        try
+        {
 
-    public async Task<IEnumerable<Country>> GetAllCountriesAsync()
-    {
-        return await dbContext.Countries.ToListAsync();
+        var languagesDbModel = await dbContext.Languages.ToListAsync();
+        var countriesDbModel = await dbContext.Countries.ToListAsync();
+        var countryLanguagesDbModel = new List<CountryLanguageDbModel>();
+        foreach (var countryDbModel in countriesDbModel)
+        {
+            var languages = countries.FirstOrDefault(c => c.CCA2 == countryDbModel.CCA2)?.Languages;
+            foreach (var lang in languages)
+            {
+                var langDbModel = languagesDbModel.FirstOrDefault(l => l.Code == lang.Code);
+                countryLanguagesDbModel.Add(new CountryLanguageDbModel 
+                {
+                    CountryId = countryDbModel.Id, 
+                    LanguageId = langDbModel.Id 
+                });
+            }
+        }
+
+        await dbContext.BulkInsertOrUpdateAsync(countryLanguagesDbModel, bulkConfigForCountryLanguages);
+        return GetBulkUpsertStatsInfo(bulkConfigForCountries.StatsInfo);
+
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
     }
 
     private BulkUpsertStatsInfo GetBulkUpsertStatsInfo(StatsInfo? statsInfo)

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestCountries.Core.Entities;
+using RestCountries.Data.DbModel;
 
 namespace RestCountries.Data;
 
@@ -10,34 +10,41 @@ public class CountriesDbContext : DbContext
     {
     }
 
-    public DbSet<Country> Countries => Set<Country>();
-    public DbSet<Language> Languages => Set<Language>();
+    internal DbSet<CountryDbModel> Countries => Set<CountryDbModel>();
+    internal DbSet<LanguageDbModel> Languages => Set<LanguageDbModel>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Country>()
+        //modelBuilder.Entity<CountryDbModel>()
+        //    .Property(x => x.Id)
+        //    .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+        modelBuilder.Entity<CountryDbModel>()
             .Property(x => x.CCA2)
             .HasMaxLength(2);
 
-        modelBuilder.Entity<Language>()
+        modelBuilder.Entity<LanguageDbModel>()
             .Property(x => x.Code)
             .HasMaxLength(3);
 
-        modelBuilder.Entity<CountryLanguage>(x =>
+        modelBuilder.Entity<CountryLanguageDbModel>(x =>
         {
             x.ToTable("CountryLanguages");
 
-            x.HasKey(sc => new { sc.CountryId, sc.LanguageId });
+            x.HasKey(x => new { x.CountryId, x.LanguageId });
 
-            x.HasOne(sc => sc.Country)
-                .WithMany(s => s.CountryLanguages)
-                .HasForeignKey(sc => sc.CountryId);
+            //x.Property(x => x.Country).HasColumnName("CountryId");
+            //x.Property(x => x.LanguageId).HasColumnName("LanguageId");
 
-            x.HasOne(sc => sc.Language)
-                .WithMany(s => s.CountryLanguages)
-                .HasForeignKey(sc => sc.LanguageId);
+            x.HasOne(x => x.Country)
+                .WithMany(x => x.CountryLanguages)
+                .HasForeignKey(x => x.CountryId);
+
+            x.HasOne(x => x.Language)
+                .WithMany(x => x.CountryLanguages)
+                .HasForeignKey(x => x.LanguageId);
         });
     }
 }
