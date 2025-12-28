@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RestCountries.Core.Entities;
 using RestCountries.Core.Services;
+using System.Diagnostics;
 
 namespace RestCountries.WebApi.Controllers.Countries;
 
@@ -9,29 +11,41 @@ namespace RestCountries.WebApi.Controllers.Countries;
 public class CountriesController : ControllerBase
 {
     private readonly ICountriesRepository countriesRepository;
+    private readonly ILogger<CountriesController> logger;
 
-    public CountriesController(ICountriesRepository countriesRepository)
+    public CountriesController(ICountriesRepository countriesRepository,
+        ILogger<CountriesController> logger)
     {
         this.countriesRepository = countriesRepository;
+        this.logger = logger;
     }
 
     [HttpGet]
     public IActionResult GetCountries([FromQuery] GetCountriesInputDto q)
     {
-        var countries = countriesRepository.GetAll(new CountryQuery
+        var stopwatch = Stopwatch.StartNew();
+        try
         {
-            Region = q.Region,
-            Name = q.Name,
-            MinPopulation = q.MinPopulation,
-            Sort = q.Sort,
-            Page = q.Page ?? 1,
-            PageSize = q.PageSize ?? 20
-        });
+            var countries = countriesRepository.GetAll(new CountryQuery
+            {
+                Region = q.Region,
+                Name = q.Name,
+                MinPopulation = q.MinPopulation,
+                Sort = q.Sort,
+                Page = q.Page ?? 1,
+                PageSize = q.PageSize ?? 20
+            });
 
-        // Data Shaping
-        var fields = !string.IsNullOrEmpty(q.Fields) ? q.Fields : "name,population,capital,region";
-        var shapedData = ShapeData(countries, q.Fields);
-        return Ok(shapedData);
+            // Data Shaping
+            var fields = !string.IsNullOrEmpty(q.Fields) ? q.Fields : "name,population,capital,region";
+            var shapedData = ShapeData(countries, q.Fields);
+            return Ok(shapedData);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            logger.LogInformation($"{nameof(GetCountries)} completed in {stopwatch.ElapsedMilliseconds} ms");
+        }
     }
 
     private static IEnumerable<IDictionary<string, object>> ShapeData(IEnumerable<Country> data, string? fields)

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestCountries.Data;
 
@@ -10,9 +11,11 @@ using RestCountries.Data;
 namespace RestCountries.Data.Migrations
 {
     [DbContext(typeof(CountriesDbContext))]
-    partial class CountriesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251228080935_AddIndicesAndUniqueConstraints")]
+    partial class AddIndicesAndUniqueConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

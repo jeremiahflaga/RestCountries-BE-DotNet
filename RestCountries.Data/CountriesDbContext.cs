@@ -21,18 +21,29 @@ public class CountriesDbContext : DbContext
             .Property(x => x.CCA2)
             .HasMaxLength(2);
 
+        modelBuilder.Entity<CountryDbModel>()
+            .HasIndex(x => x.CCA2)
+            .IsUnique();
+        modelBuilder.Entity<CountryDbModel>()
+            .HasIndex(b => b.Name);
+        modelBuilder.Entity<CountryDbModel>()
+            .HasIndex(b => b.Region);
+        modelBuilder.Entity<CountryDbModel>()
+            .HasIndex(b => b.Population);
+
         modelBuilder.Entity<LanguageDbModel>()
             .Property(x => x.Code)
             .HasMaxLength(3);
+
+        modelBuilder.Entity<LanguageDbModel>()
+            .HasIndex(b => b.Code)
+            .IsUnique();
 
         modelBuilder.Entity<CountryLanguageDbModel>(x =>
         {
             x.ToTable("CountryLanguages");
 
             x.HasKey(x => new { x.CountryId, x.LanguageId });
-
-            //x.Property(x => x.Country).HasColumnName("CountryId");
-            //x.Property(x => x.LanguageId).HasColumnName("LanguageId");
 
             x.HasOne(x => x.Country)
                 .WithMany(x => x.CountryLanguages)
