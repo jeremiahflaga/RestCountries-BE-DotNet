@@ -37,15 +37,22 @@ public class ImportCountriesRepository : IImportCountriesRepository
 
     public async Task<BulkUpsertStatsInfo> BulkUpsertAsync(IEnumerable<Country> countries)
     {
-        await BulkImportLanguages(countries);
-        await BulkImportCountries(countries);
-        await BulkImportCountryLanguages(countries);
+        var importLanguagesStats = await BulkImportLanguages(countries);
+        var importCountriesStats = await BulkImportCountries(countries);
+        var importCountryLanguagesStats = await BulkImportCountryLanguages(countries);
 
-        //await dbContext.BulkInsertOrUpdateAsync(countries, bulkConfigForCountries);
-        return GetBulkUpsertStatsInfo(bulkConfigForCountries.StatsInfo);
+        return new BulkUpsertStatsInfo
+        {
+            CountriesInsertedCount = importCountriesStats.InsertedCount,
+            CountriesUpdatedCount = importCountriesStats.UpdatedCount,
+            LanguagesInsertedCount = importLanguagesStats.InsertedCount,
+            LanguagesUpdatedCount = importLanguagesStats.UpdatedCount,
+            CountryLanguagesInsertedCount = importCountryLanguagesStats.InsertedCount,
+            CountryLanguagesUpdatedCount = importCountryLanguagesStats.UpdatedCount
+        };
     }
 
-    private async Task<BulkUpsertStatsInfo> BulkImportLanguages(IEnumerable<Country>? countries)
+    private async Task<DbBulkUpsertStatsInfo> BulkImportLanguages(IEnumerable<Country>? countries)
     {
         var languagesDbModel = countries?.SelectMany(c => c.Languages)
             .DistinctBy(l => l.Code)
@@ -55,7 +62,7 @@ public class ImportCountriesRepository : IImportCountriesRepository
         return GetBulkUpsertStatsInfo(bulkConfigForLanguages.StatsInfo);
     }
 
-    private async Task<BulkUpsertStatsInfo> BulkImportCountries(IEnumerable<Country>? countries)
+    private async Task<DbBulkUpsertStatsInfo> BulkImportCountries(IEnumerable<Country>? countries)
     {
         var countriesDbModel = new List<CountryDbModel>();
         foreach (var countryDto in countries)
@@ -80,7 +87,7 @@ public class ImportCountriesRepository : IImportCountriesRepository
         return GetBulkUpsertStatsInfo(bulkConfigForCountries.StatsInfo);
     }
 
-    private async Task<BulkUpsertStatsInfo> BulkImportCountryLanguages(IEnumerable<Country>? countries)
+    private async Task<DbBulkUpsertStatsInfo> BulkImportCountryLanguages(IEnumerable<Country>? countries)
     {
         try
         {
@@ -113,12 +120,18 @@ public class ImportCountriesRepository : IImportCountriesRepository
         }
     }
 
-    private BulkUpsertStatsInfo GetBulkUpsertStatsInfo(StatsInfo? statsInfo)
+    private DbBulkUpsertStatsInfo GetBulkUpsertStatsInfo(StatsInfo? statsInfo)
     {
-        return new BulkUpsertStatsInfo
+        return new DbBulkUpsertStatsInfo
         {
             InsertedCount = statsInfo?.StatsNumberInserted ?? 0,
             UpdatedCount = statsInfo?.StatsNumberUpdated ?? 0
         };
     }
+}
+
+internal class DbBulkUpsertStatsInfo
+{
+    public int InsertedCount { get; set; }
+    public int UpdatedCount { get; set; }
 }

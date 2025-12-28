@@ -42,15 +42,11 @@ public class ImportController : ControllerBase
             }
 
             var countriesDto = await response.Content.ReadFromJsonAsync<List<ImportCountryDto>>();
+            var importStats = await BulkImportCountries(countriesDto);
 
-            //var importLanguagesStats = await BulkImportLanguages(countriesDto);
-            var importCountriesStats = await BulkImportCountries(countriesDto);
-            //var importCountryLanguagesStats = await BulkImportCountryLanguages(countriesDto);
-
-            // TODO: Add Logs for stats
-            //logger.LogInformation($"Languages - Inserted: {importLanguagesStats.InsertedCount}, Updated: {importLanguagesStats.UpdatedCount}");
-            //logger.LogInformation($"Countries - Inserted: {importCountriesStats.InsertedCount}, Updated: {importCountriesStats.UpdatedCount}");
-            //logger.LogInformation($"CountryLanguages - Inserted: {importCountryLanguagesStats.InsertedCount}, Updated: {importCountryLanguagesStats.UpdatedCount}");
+            logger.LogInformation($"Languages - Inserted: {importStats.LanguagesInsertedCount}, Updated: {importStats.LanguagesUpdatedCount}");
+            logger.LogInformation($"Countries - Inserted: {importStats.CountriesInsertedCount}, Updated: {importStats.CountriesUpdatedCount}");
+            logger.LogInformation($"CountryLanguages - Inserted: {importStats.CountryLanguagesInsertedCount}, Updated: {importStats.CountryLanguagesUpdatedCount}");
         }
         catch (Exception ex)
         {

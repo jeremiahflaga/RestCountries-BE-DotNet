@@ -13,6 +13,10 @@ public interface IImportCountriesRepository
 
 public class BulkUpsertStatsInfo
 {
-    public int InsertedCount { get; set; }
-    public int UpdatedCount { get; set; }
+    public int CountriesInsertedCount { get; set; }
+    public int CountriesUpdatedCount { get; set; }
+    public int LanguagesInsertedCount { get; set; }
+    public int LanguagesUpdatedCount { get; set; }
+    public int CountryLanguagesInsertedCount { get; set; }
+    public int CountryLanguagesUpdatedCount { get; set; }
 }
