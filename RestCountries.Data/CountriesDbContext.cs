@@ -8,6 +8,7 @@ public class CountriesDbContext : DbContext
     public CountriesDbContext(DbContextOptions<CountriesDbContext> options) 
         : base(options) 
     {
+        var connstr = Database.GetConnectionString();
     }
 
     internal DbSet<CountryDbModel> Countries => Set<CountryDbModel>();
