@@ -49,7 +49,7 @@ public class ImportController : ControllerBase
         catch (Exception ex)
         {
             logger.LogError(ex.Message);
-            return StatusCode(StatusCodes.Status500InternalServerError, "Call to RestCountries API failed.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Import Countries failed.");
         }
         finally
         {
